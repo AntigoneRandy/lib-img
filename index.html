@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="./public/index.css">
+    <link href="./public/kico.css" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1" />
+    <script src="./public/kico.js"></script>
+    <script src="./public/index.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <fieldset id="app"> 
+            <h1>图书馆截图收集</h1>
+            <label>
+                <span>姓名：</span>
+                <input type="text" placeholder="填写真实姓名" :disabled="isDisabled" v-model="realName" />
+            </label>
+            <label>
+                <span>学号后三位：</span>
+                <input type="number" min="167" max="198" v-model="stuId" :disabled="isDisabled">
+            </label>
+            <label>
+                <span>上传图书馆履约截图：</span>
+                <input type="file" id="input" accept="image/gif, image/jpeg, image/jpg, image/png, image/svg">
+            </label>
+            <button class="btn blue" @click="onSubmit">上传</button>
+        </fieldset>
+    </div>
+</body>
+<script src="./public/vue.js"></script>
+<script src="./public/axios.js"></script>
+<script>
+    let app = new Vue({
+        el: '#app',
+        data: {
+            realName: '李勃衡',
+            stuId: '189',
+            isDisabled: false
+        },
+        methods: {
+            onSubmit: function (e) {
+                let realName = this.realName;
+                let stuId = this.stuId;
+                let file = document.getElementById("input").files[0];
+                let fileSize = Math.round(file.size / 1024);
+                if (fileSize > 4 * 1024) {
+                    alert('文件过大！请确认上传了正确的图片文件');
+                } else {
+                    let formData = new FormData();
+                    formData.append('realName', realName);
+                    formData.append('stuId', stuId);
+                    formData.append('img', file);
+                    axios({
+                            method: "POST",
+                            url: "http://127.0.0.1:5000/upload",
+                            data: formData,
+                            headers: {
+                                "Content-Type": "multipart/form-data"
+                            }
+                        })
+                        .then(function (response) {
+                            if (response.data.success) {
+                                alert('上传成功！');
+                            } else {
+                                alert(response.data.reason);
+                            }
+                        })
+                }
+            }
+        }
+    })
+</script>
+
+</html>
